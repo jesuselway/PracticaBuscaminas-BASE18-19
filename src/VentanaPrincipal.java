@@ -19,6 +19,13 @@ import javax.swing.SwingConstants;
 
 public class VentanaPrincipal {
 
+	/**
+	 * @author Jesús Carranza Arenas
+	 * Esta clase es la ventana principal del buscaminaas, donde se genera la parte visual
+	 * y se hacen algunas comprobaciones del juego.
+	 * Todo empieza aquí {@link #inicializar()}
+	 * 
+	 * */
 	
 	//La ventana principal, en este caso, guarda todos los componentes:
 	JFrame ventana;
