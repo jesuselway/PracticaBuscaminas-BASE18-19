@@ -4,6 +4,9 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,6 +19,7 @@ import javax.swing.SwingConstants;
 
 public class VentanaPrincipal {
 
+	
 	//La ventana principal, en este caso, guarda todos los componentes:
 	JFrame ventana;
 	JPanel panelImagen;
@@ -64,6 +68,16 @@ public class VentanaPrincipal {
 		
 		
 		botonEmpezar = new JButton("Go!");
+		
+		botonEmpezar.addActionListener( new  ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				iniciarTablero();
+			}
+
+		});
+		
 		pantallaPuntuacion = new JTextField("0");
 		pantallaPuntuacion.setEditable(false);
 		pantallaPuntuacion.setHorizontalAlignment(SwingConstants.CENTER);
@@ -139,7 +153,65 @@ public class VentanaPrincipal {
 	 * Método que inicializa todos los lísteners que necesita inicialmente el programa
 	 */
 	public void inicializarListeners(){
-		//TODO
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				int i2 =i;
+				int j2 = j;
+				botonesJuego[i][j].addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {		
+					
+if (juego.abrirCasilla(i2, j2)) {
+	mostrarFinJuego(true);
+	
+	for (int k = 0; k < botonesJuego.length; k++) {
+		for (int l = 0; l < botonesJuego.length; l++) {
+			botonesJuego[k][l].setEnabled(false);
+		}
+		
+	}
+	
+}else {
+	mostrarNumMinasAlrededor(i2, j2);
+	actualizarPuntuacion();
+	refrescarPantalla();
+
+}						
+					}
+			
+				}); 
+		}
+			}
+	}
+	
+	private void iniciarTablero() {
+		
+		panelJuego.removeAll();
+		
+		panelesJuego = new JPanel[10][10];
+		for (int i = 0; i < panelesJuego.length; i++) {
+			for (int j = 0; j < panelesJuego[i].length; j++) {
+				panelesJuego[i][j] = new JPanel();
+				panelesJuego[i][j].setLayout(new GridLayout(1,1));
+				panelJuego.add(panelesJuego[i][j]);
+			}
+		}
+		
+		//Botones
+		botonesJuego = new JButton[10][10];
+		for (int i = 0; i < botonesJuego.length; i++) {
+			for (int j = 0; j < botonesJuego[i].length; j++) {
+				botonesJuego[i][j] = new JButton("-");
+				panelesJuego[i][j].add(botonesJuego[i][j]);
+			}
+		}		
+		refrescarPantalla();
+		inicializarListeners();
+		
+		juego.inicializarPartida();
+		actualizarPuntuacion();
+		
 	}
 	
 	
@@ -156,8 +228,50 @@ public class VentanaPrincipal {
 	 * @param j: posición horizontal de la celda.
 	 */
 	public void mostrarNumMinasAlrededor(int i , int j) {
-		//TODO
+		
+		
+		if (juego.esVacio(i, j)) {	
+			panelesJuego[i][j].removeAll();
+	JTextField aux = new JTextField();
+	aux.setText(Integer.toString(juego.getMinasAlrededor(i,j)));
+	aux.setForeground(correspondenciaColores[juego.getMinasAlrededor(i, j)]);
+	aux.setHorizontalAlignment(SwingConstants.CENTER);
+	aux.setEditable(false);
+	panelesJuego[i][j].add(aux);
+	juego.puntuacion(i, j);
+	juego.esblecerVisitado(i, j);
+	refrescarPantalla();
+	
+			for (int k = Math.max(0, i-1); k <= Math.min(i+1, juego.LADO_TABLERO-1 ) ; k++) {
+			for (int k2 = Math.max(0, j-1); k2 <= Math.min(j+1, juego.LADO_TABLERO-1); k2++) {
+				if (!juego.abrirCasilla(k, k2)) {
+				if (juego.getMinasAlrededor(k, k2)!=juego.VISITADA) {	
+	mostrarNumMinasAlrededor(k, k2);
+	if (juego.getPuntuacion()==80) {
+		mostrarFinJuego(false);
 	}
+				}
+				}		
+				}
+			}	
+		}else {
+			panelesJuego[i][j].removeAll();
+			JTextField aux = new JTextField();
+			aux.setText(Integer.toString(juego.getMinasAlrededor(i, j)));
+			aux.setForeground(correspondenciaColores[juego.getMinasAlrededor(i, j)]);
+			aux.setHorizontalAlignment(SwingConstants.CENTER);
+			aux.setEditable(false);
+			panelesJuego[i][j].add(aux);
+			refrescarPantalla();
+			juego.puntuacion(i, j);
+			juego.esblecerVisitado(i, j);
+			
+		}
+		if (juego.getPuntuacion()==80) {
+			mostrarFinJuego(false);
+		}
+		
+			}
 	
 	
 	/**
@@ -166,14 +280,33 @@ public class VentanaPrincipal {
 	 * @post : Todos los botones se desactivan excepto el de volver a iniciar el juego.
 	 */
 	public void mostrarFinJuego(boolean porExplosion) {
-		//TODO
+if (porExplosion) {
+	JOptionPane.showMessageDialog(null, "�Ha explotado una bomba!");
+	for (int i = 0; i < 10; i++) {
+		for (int j = 0; j < 10; j++) {
+			
+			if (juego.esMina(i, j)) {
+				botonesJuego[i][j].setBackground(Color.red);
+				botonesJuego[i][j].setText("#");
+				
+			}
+			
+		}
+	}
+}else {
+	JOptionPane.showMessageDialog(null, "�Enhorabuena, has ganado!");
+	
+}
 	}
 
 	/**
 	 * Método que muestra la puntuación por pantalla.
 	 */
 	public void actualizarPuntuacion() {
-		//TODO
+		pantallaPuntuacion.setText(Integer.toString(juego.getPuntuacion()));
+		if (juego.getPuntuacion()==80) {
+			mostrarFinJuego(false);
+		}
 	}
 	
 	/**
