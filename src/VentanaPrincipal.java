@@ -21,9 +21,20 @@ public class VentanaPrincipal {
 
 	/**
 	 * @author Jesús Carranza Arenas
+	 * @version 1.7
+	 * @since 25/10/2018
+	 * @see #ControlJuego clase control juego
 	 * Esta clase es la ventana principal del buscaminaas, donde se genera la parte visual
 	 * y se hacen algunas comprobaciones del juego.
 	 * Todo empieza aquí {@link #inicializar()}
+	 * {@code <pre>
+	 * public void inicializar(){
+		ventana.setVisible(true);
+		inicializarComponentes();	
+		inicializarListeners();	
+	 * </pre>}
+	 * 
+	 * 
 	 * 
 	 * */
 	
